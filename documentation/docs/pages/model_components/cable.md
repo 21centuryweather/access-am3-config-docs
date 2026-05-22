@@ -2,17 +2,14 @@
 
 This is a work in progress!
 
-The [CABLE land model](https://github.com/CABLE-LSM/CABLE) forms the land component of the ACCESS family of climate and Earth System models.
-There are two major subcomponents: CABLE which provides the biophysical information ACCESS requires each time step, and CASA which provides the terrestrial carbon cycle information for ACCESS-ESM.
-CABLE is carefully linked into the atmospheric component [(UM)](./um.md) via the native land model of the UM [(JULES)](https://github.com/ACCESS-NRI/JULES).
-All ACCESS simulations require the use of [JULES](./jules.md) or CABLE if only to provide lower boundary conditions on the atmosphere. 
+The [CABLE land model](https://github.com/CABLE-LSM/CABLE) forms the land component of the ACCESS family of climate and Earth System models. There are two major subcomponents: CABLE which provides the biophysical information ACCESS requires each time step, and CASA which provides the terrestrial carbon cycle information for ACCESS-ESM. CABLE is carefully linked into the atmospheric component [(UM)](./um.md) via the native land model of the UM [(JULES)](https://github.com/ACCESS-NRI/JULES). 
 
-## Subheading 1
-
-CABLE links into the UM/JULES in multiple places in two borad categories - technical and scientific.
+## CABLE in ACCESS-AM3
+All ACCESS simulations require the use of [JULES](./jules.md) or CABLE if only to provide lower boundary conditions on the atmosphere.
+CABLE links into UM/JULES within ACCESS-AM3 in multiple places, across two categories - technical and scientific.
 
 ### Technical coupling
-Within an AM3 simulation (typically a month or shorter) there are 4 key technical connections
+Within an AM3 simulation (typically a simulated month or less) there are 4 key technical connections
  1. configuration read - both [JULES](./jules.md) and CABLE namelists are read.  These are editable (with care) in the rose-suite for the experiment.  Edits can also be made to specify which outputs are requested.
  2. variable declaration/allocation - given the input configuration additional CABLE specific variables are created for use.
  3. restart read/write - CABLE specific variables are read from/written to the restart file.  The restart and input configuration must match - automated checking of this within the rose-suite is a work in progress.
@@ -30,19 +27,20 @@ Legend:
 - GREEN is CABLE science code and JULES-CABLE coupling code (where necessary)
 - DIAGONAL LINES indicate links to output via STASH
 
+### Scientific coupling
  Within a model time step there are 4 principal scientific connection points between CABLE and UM/JULES
  1. `surf_couple_radiation`: evaluates the land contributions to the surface (4-band) albedos.
  2. `surf_couple_explicit`:  estimates the land surface energy balance
  3. `surf_couple_implicit`: evaluates the land surface energy balance, and evolves the land state (temperatures, soil moisture, and [CASA's](./casa.md) carbon, nitrogen and phosphorus cycles).
  4. `surf_couple_extra`: passes CABLE's runoff variables to the ACCESS river routing scheme.
 
- The UM is very(!) complex in the sequencing of calculations.  Of note `surf_couple_radiation` is only encountered on *radiation timesteps*, `surf_couple_explicit` and `surf_couple_extra` are encountered once per timestep, but `surf_couple_implicit` is encountered twice per timestep.
+ The UM is very(!) complex in the sequencing of calculations - some calculations are carried out multiple times per timestep, others less frequently.  Of note `surf_couple_radiation` is only encountered on *radiation timesteps* (every 4th timestep), `surf_couple_explicit` and `surf_couple_extra` are encountered once per timestep, but `surf_couple_implicit` is encountered twice per timestep.
 
  In contrast to ACCESS-AM3 (UM-CABLE), ACCESS-rAM3 (UM-JULES) undertakes the evolution of the land state as part of `surf_couple_extras`  
 
 Additional technical and scientific links are envisaged to the atmospheric chemistry component [(UKCA)](./ukca.md) and the ice sheet model in due course. 
 
-## Subheading 2 (likely better in the architecture.md)
+## Subheading 2 (likely better in [architecture.md](../infrastructure/Architecture.md))
 
 ![Structure 2](../../assets/structure2.jpg "Structure 2")
 Legend:
